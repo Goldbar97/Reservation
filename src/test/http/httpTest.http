@@ -1,0 +1,77 @@
+### SignUp Customer
+POST localhost:8080/customer/signup
+Content-Type: application/json
+
+{
+  "email": "test@naver.com",
+  "name": "KANG",
+  "password": "test1234",
+  "phoneNumber": "010-1234-1234"
+}
+
+### SignUp Manager
+POST localhost:8080/manager/signup
+Content-Type: application/json
+
+{
+  "email": "test@naver.com",
+  "name": "KANG",
+  "password": "test1234",
+  "phoneNumber": "010-1234-1234"
+}
+
+### Create Restaurant
+POST localhost:8080/manager/create
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX01BTkFHRVIiXSwic3ViIjoidGVzdEBuYXZlci5jb20iLCJpYXQiOjE3MTM2MzAwNTEsImV4cCI6MTcxMzYzMzY1MX0._rQKJvchdU7-Z9-wh7pu5TWvKyQSQ4Ezjdes8T5gCac1nJn9WQlJ0d-CVwNltO7OqzxJnyP8Ru2T6APANnwERw
+
+{
+  "name": "치킨집",
+  "businessNumber": "000-00-00000-5",
+  "location": "인천시",
+  "capacity": 10,
+  "description": "인천 BBQ 치킨집",
+  "phoneNumber": "010-0000-0000"
+}
+
+### SignIn Customer
+POST localhost:8080/customer/signin
+Content-Type: application/json
+
+{
+  "email": "test@naver.com",
+  "password": "test1234"
+}
+
+### SignIn Manager
+POST localhost:8080/manager/signin
+Content-Type: application/json
+
+{
+  "email": "test@naver.com",
+  "password": "test1234"
+}
+
+### Reservation Customer
+POST localhost:8080/customer/reservation/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX0NVU1RPTUVSIl0sInN1YiI6InRlc3RAbmF2ZXIuY29tIiwiaWF0IjoxNzEzNjI2NDgxLCJleHAiOjE3MTM2MzAwODF9.h6N_Y8zhhaIf9ylci6-6YXxvUYhxs7B3djQWfHWDxiHILmG1Ljydxy3dTooR7JAhqkhwUH7tKOG9z4zntl3twg
+
+{
+  "headCount": 20,
+  "reservedAt": "2024-10-31T14:30:00"
+}
+
+### Review Customer
+POST localhost:8080/customer/rate/1
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX0NVU1RPTUVSIl0sInN1YiI6InRlc3RAbmF2ZXIuY29tIiwiaWF0IjoxNzEzNjI2NDgxLCJleHAiOjE3MTM2MzAwODF9.h6N_Y8zhhaIf9ylci6-6YXxvUYhxs7B3djQWfHWDxiHILmG1Ljydxy3dTooR7JAhqkhwUH7tKOG9z4zntl3twg
+
+{
+  "rate": 4,
+  "description": "괜찮습니다."
+}
+
+### Get Restaurants
+GET localhost:8080/customer/restaurants
+Accept: application/json
