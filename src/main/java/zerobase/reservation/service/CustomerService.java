@@ -14,7 +14,10 @@ import zerobase.reservation.entity.RestaurantEntity;
 import zerobase.reservation.entity.ReviewEntity;
 import zerobase.reservation.exception.CustomException;
 import zerobase.reservation.exception.ErrorCode;
-import zerobase.reservation.repository.*;
+import zerobase.reservation.repository.CustomerRepository;
+import zerobase.reservation.repository.ReservationRepository;
+import zerobase.reservation.repository.RestaurantRepository;
+import zerobase.reservation.repository.ReviewRepository;
 import zerobase.reservation.security.JwtTokenUtil;
 
 import java.util.List;
@@ -30,9 +33,21 @@ public class CustomerService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     
-    public List<RestaurantsProjection> getRestaurants() {
+    public List<RestaurantDto.Response> getRestaurants() {
         
-        return restaurantRepository.findBy();
+        List<RestaurantEntity> restaurantEntities =
+                restaurantRepository.findAll();
+        
+        return restaurantEntities.stream()
+                .map(i -> RestaurantDto.Response.builder()
+                        .restaurantId(i.getId())
+                        .name(i.getName())
+                        .location(i.getLocation())
+                        .capacity(i.getCapacity())
+                        .phoneNumber(i.getPhoneNumber())
+                        .description(i.getDescription())
+                        .build())
+                .toList();
     }
     
     @Override
@@ -45,8 +60,8 @@ public class CustomerService implements UserDetailsService {
     }
     
     @Transactional
-    public ReviewForm.Response rateRestaurant(
-            String header, ReviewForm.Request form, Long id) {
+    public ReviewDto.Response rateRestaurant(
+            String header, ReviewDto.Request form, Long id) {
         
         String token = jwtTokenUtil.getToken(header);
         String email = jwtTokenUtil.getEmail(token);
@@ -60,14 +75,14 @@ public class CustomerService implements UserDetailsService {
         ReviewEntity saved = reviewRepository.save(ReviewEntity.from(
                 form, customerEntity, restaurantEntity));
         
-        return ReviewForm.Response.builder()
+        return ReviewDto.Response.builder()
                 .reviewId(saved.getId())
                 .build();
     }
     
     @Transactional
-    public ReservationForm.Response reserveRestaurant(
-            String header, ReservationForm.Request form, Long id) {
+    public ReservationDto.Response reserveRestaurant(
+            String header, ReservationDto.Request form, Long id) {
         
         String token = jwtTokenUtil.getToken(header);
         String email = jwtTokenUtil.getEmail(token);
@@ -81,15 +96,16 @@ public class CustomerService implements UserDetailsService {
         ReservationEntity saved = reservationRepository.save(
                 ReservationEntity.from(form, customerEntity, restaurantEntity));
         
-        return ReservationForm.Response.builder()
+        return ReservationDto.Response.builder()
                 .reservationId(saved.getId())
                 .customerId(customerEntity.getId())
                 .reservedAt(saved.getReservedAt())
                 .restaurantId(saved.getRestaurantEntity().getId())
+                .headCount(saved.getHeadCount())
                 .build();
     }
     
-    public SignInForm.Response signInCustomer(SignInForm.Request form) {
+    public SignInDto.Response signIn(SignInDto.Request form) {
         
         CustomerEntity customerEntity = customerRepository.findByEmail(
                         form.getEmail())
@@ -100,14 +116,14 @@ public class CustomerService implements UserDetailsService {
             throw new CustomException(ErrorCode.WRONG_LOGIN);
         }
         
-        return SignInForm.Response.builder()
+        return SignInDto.Response.builder()
                 .email(customerEntity.getEmail())
                 .role(customerEntity.getRole())
                 .build();
     }
     
     @Transactional
-    public SignUpForm.Response signUpCustomer(SignUpForm.Request form) {
+    public SignUpDto.Response signUp(SignUpDto.Request form) {
         
         boolean exists = customerRepository.existsByEmail(form.getEmail());
         
@@ -120,7 +136,7 @@ public class CustomerService implements UserDetailsService {
         CustomerEntity saved = customerRepository.save(
                 CustomerEntity.from(form));
         
-        return SignUpForm.Response.builder()
+        return SignUpDto.Response.builder()
                 .id(saved.getId())
                 .email(saved.getEmail())
                 .name(saved.getName())

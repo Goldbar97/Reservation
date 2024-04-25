@@ -1,13 +1,13 @@
 package zerobase.reservation.dto;
 
-import lombok.*;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
-public class RestaurantForm {
+public class RestaurantDto {
     
     @Getter
     @Setter
-    @AllArgsConstructor
-    @NoArgsConstructor
     public static class Request {
         
         private String name;
@@ -18,11 +18,16 @@ public class RestaurantForm {
         private String phoneNumber;
     }
     
+    @Builder
     @Getter
     @Setter
-    @Builder
     public static class Response {
         
         private Long restaurantId;
+        private String name;
+        private String location;
+        private Integer capacity;
+        private String phoneNumber;
+        private String description;
     }
 }

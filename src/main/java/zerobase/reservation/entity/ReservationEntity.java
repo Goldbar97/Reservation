@@ -1,14 +1,12 @@
 package zerobase.reservation.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import zerobase.reservation.dto.ReservationForm;
+import zerobase.reservation.dto.ReservationDto;
+import zerobase.reservation.type.ReservationStatus;
 
 import java.time.LocalDateTime;
 
@@ -18,7 +16,8 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor
-public class ReservationEntity {
+@Setter
+public class ReservationEntity implements ProjectEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,9 +31,16 @@ public class ReservationEntity {
     @JoinColumn(name = "customer_id")
     private CustomerEntity customerEntity;
     
+    @Column(nullable = false)
     private Integer headCount;
-    private Boolean visited;
     
+    @Column(nullable = false)
+    private boolean visited;
+    
+    @Column(nullable = false)
+    private ReservationStatus reservationStatus;
+    
+    @Column(nullable = false)
     private LocalDateTime reservedAt;
     
     @CreatedDate
@@ -43,13 +49,15 @@ public class ReservationEntity {
     private LocalDateTime updatedAt;
     
     public static ReservationEntity from(
-            ReservationForm.Request form, CustomerEntity customerEntity,
+            ReservationDto.Request form, CustomerEntity customerEntity,
             RestaurantEntity restaurantEntity) {
         
         return ReservationEntity.builder()
-                .customerEntity(customerEntity)
                 .restaurantEntity(restaurantEntity)
+                .customerEntity(customerEntity)
                 .headCount(form.getHeadCount())
+                .visited(false)
+                .reservationStatus(ReservationStatus.WAIT)
                 .reservedAt(form.getReservedAt())
                 .build();
     }

@@ -4,37 +4,63 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-import zerobase.reservation.dto.RestaurantForm;
-import zerobase.reservation.dto.SignInForm;
-import zerobase.reservation.dto.SignUpForm;
+import zerobase.reservation.dto.*;
 import zerobase.reservation.security.TokenProvider;
 import zerobase.reservation.service.ManagerService;
 
-@RestController
-@RequiredArgsConstructor
+import java.util.List;
+
 @RequestMapping("/manager")
+@RequiredArgsConstructor
+@RestController
 public class ManagerController {
     
     private final ManagerService managerService;
     private final TokenProvider tokenProvider;
+    private final String HEADER_AUTH = "Authorization";
+    
+    @PutMapping("/reservation/")
+    public ResponseEntity<Object> decideReservation(
+            @RequestHeader(HEADER_AUTH) String header,
+            @RequestBody ReservationStatusDto status,
+            @RequestParam Long restaurantId,
+            @RequestParam Long reservationId) {
+        
+        ReservationDto.Response edited = managerService.decideReservation(
+                header, status, restaurantId, reservationId);
+        
+        return ResponseEntity.ok(edited);
+    }
     
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<Object> createRestaurant(
             @RequestHeader("Authorization") String header,
-            @RequestBody RestaurantForm.Request form) {
+            @RequestBody RestaurantDto.Request form) {
         
-        RestaurantForm.Response saved = managerService.createRestaurant(
+        RestaurantDto.Response saved = managerService.createRestaurant(
                 header, form);
         
         return ResponseEntity.ok(saved);
     }
     
+    @PreAuthorize("hasRole('MANAGER')")
+    @GetMapping("/reservation/{restaurantId}")
+    public ResponseEntity<Object> getReservations(
+            @RequestHeader("Authorization") String header,
+            @PathVariable Long restaurantId) {
+        
+        List<ReservationDto.Response> list = managerService.getReservations(
+                header, restaurantId);
+        
+        return ResponseEntity.ok(list);
+    }
+    
     @PostMapping("/signin")
     public ResponseEntity<Object> signInManager(
-            @RequestBody SignInForm.Request form) {
+            @RequestBody SignInDto.Request form) {
         
-        SignInForm.Response signedIn = managerService.signInManager(form);
+        SignInDto.Response signedIn = managerService.signIn(form);
         
         String token = tokenProvider.generateToken(
                 signedIn.getEmail(), signedIn.getRole());
@@ -45,9 +71,9 @@ public class ManagerController {
     
     @PostMapping("/signup")
     public ResponseEntity<Object> signUpManager(
-            @RequestBody SignUpForm.Request form) {
+            @RequestBody SignUpDto.Request form) {
         
-        SignUpForm.Response saved = managerService.signUpManager(form);
+        SignUpDto.Response saved = managerService.signUp(form);
         
         return ResponseEntity.ok(saved);
     }

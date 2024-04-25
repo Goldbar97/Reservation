@@ -1,14 +1,11 @@
 package zerobase.reservation.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import zerobase.reservation.dto.ReviewForm;
+import zerobase.reservation.dto.ReviewDto;
 
 import java.time.LocalDateTime;
 
@@ -18,22 +15,28 @@ import java.time.LocalDateTime;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor
-public class ReviewEntity {
+@Setter
+public class ReviewEntity implements ProjectEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "restaurant_id")
     private RestaurantEntity restaurantEntity;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id")
     private CustomerEntity customerEntity;
     
+    @Column(nullable = false)
     private String name;
+    
+    @Column(nullable = false)
     private String description;
+    
+    @Column(nullable = false)
     private Integer rate;
     
     @CreatedDate
@@ -42,15 +45,15 @@ public class ReviewEntity {
     private LocalDateTime updatedAt;
     
     public static ReviewEntity from(
-            ReviewForm.Request form, CustomerEntity customerEntity,
+            ReviewDto.Request form, CustomerEntity customerEntity,
             RestaurantEntity restaurantEntity) {
         
         return ReviewEntity.builder()
+                .restaurantEntity(restaurantEntity)
+                .customerEntity(customerEntity)
+                .name(customerEntity.getName())
                 .description(form.getDescription())
                 .rate(form.getRate())
-                .name(customerEntity.getName())
-                .customerEntity(customerEntity)
-                .restaurantEntity(restaurantEntity)
                 .build();
     }
 }

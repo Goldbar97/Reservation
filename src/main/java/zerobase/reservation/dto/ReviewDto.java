@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
 
-public class ReviewForm {
+public class ReviewDto {
     
     @Getter
     @Setter
@@ -14,8 +14,9 @@ public class ReviewForm {
         private Integer rate;
     }
     
-    @Getter
     @Builder
+    @Getter
+    @Setter
     public static class Response {
         
         private Long reviewId;

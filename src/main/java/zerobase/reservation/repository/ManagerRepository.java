@@ -14,6 +14,4 @@ public interface ManagerRepository extends JpaRepository<ManagerEntity,
     
     Optional<ManagerEntity> findByEmail(String email);
     
-    Optional<ManagerEntity> findByEmailAndPassword(
-            String email, String password);
 }

@@ -10,5 +10,4 @@ import java.util.List;
 public interface ReviewRepository extends JpaRepository<ReviewEntity,
         Long> {
     
-    List<ReviewEntity> findAllByRestaurantEntityId(Long id);
 }

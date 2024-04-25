@@ -1,14 +1,11 @@
 package zerobase.reservation.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import zerobase.reservation.dto.RestaurantForm;
+import zerobase.reservation.dto.RestaurantDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -19,27 +16,36 @@ import java.util.List;
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @NoArgsConstructor
-public class RestaurantEntity {
+@Setter
+public class RestaurantEntity implements ProjectEntity {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     
-    @ManyToOne()
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "manager_id")
     private ManagerEntity managerEntity;
     
-//    @JoinColumn(name = "review_id")
-    @OneToMany(mappedBy = "restaurantEntity")
+    @OneToMany(mappedBy = "restaurantEntity", fetch = FetchType.LAZY)
     private List<ReviewEntity> reviewEntity;
     
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String businessNumber;
     
+    @Column(nullable = false)
     private String name;
+    
+    @Column(nullable = false)
     private String location;
+    
+    @Column(nullable = false)
     private Integer capacity;
+    
+    @Column(nullable = false)
     private String description;
+    
+    @Column(nullable = false)
     private String phoneNumber;
     
     @CreatedDate
@@ -48,18 +54,18 @@ public class RestaurantEntity {
     private LocalDateTime updatedAt;
     
     public static RestaurantEntity from(
-            RestaurantForm.Request form, ManagerEntity managerEntity,
+            RestaurantDto.Request form, ManagerEntity managerEntity,
             List<ReviewEntity> reviewEntities) {
         
         return RestaurantEntity.builder()
+                .managerEntity(managerEntity)
+                .reviewEntity(reviewEntities)
+                .businessNumber(form.getBusinessNumber())
                 .name(form.getName())
                 .location(form.getLocation())
                 .capacity(form.getCapacity())
-                .managerEntity(managerEntity)
-                .phoneNumber(form.getPhoneNumber())
-                .businessNumber(form.getBusinessNumber())
-                .reviewEntity(reviewEntities)
                 .description(form.getDescription())
+                .phoneNumber(form.getPhoneNumber())
                 .build();
     }
 }

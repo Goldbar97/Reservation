@@ -5,15 +5,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import zerobase.reservation.dto.*;
-import zerobase.reservation.repository.RestaurantsProjection;
 import zerobase.reservation.security.TokenProvider;
 import zerobase.reservation.service.CustomerService;
 
 import java.util.List;
 
-@RestController
-@RequiredArgsConstructor
 @RequestMapping("/customer")
+@RequiredArgsConstructor
+@RestController
 public class CustomerController {
     
     private final CustomerService customerService;
@@ -22,7 +21,7 @@ public class CustomerController {
     @GetMapping("/restaurants")
     public ResponseEntity<Object> getRestaurants() {
         
-        List<RestaurantsProjection> restaurants =
+        List<RestaurantDto.Response> restaurants =
                 customerService.getRestaurants();
         
         return ResponseEntity.ok(restaurants);
@@ -32,10 +31,10 @@ public class CustomerController {
     @PostMapping("/rate/{id}")
     public ResponseEntity<Object> rateRestaurant(
             @RequestHeader("Authorization") String header,
-            @RequestBody ReviewForm.Request form,
+            @RequestBody ReviewDto.Request form,
             @PathVariable Long id) {
         
-        ReviewForm.Response saved = customerService.rateRestaurant(
+        ReviewDto.Response saved = customerService.rateRestaurant(
                 header, form, id);
         
         return ResponseEntity.ok(saved);
@@ -45,10 +44,10 @@ public class CustomerController {
     @PostMapping("/reservation/{id}")
     public ResponseEntity<Object> reserveRestaurant(
             @RequestHeader("Authorization") String header,
-            @RequestBody ReservationForm.Request form,
+            @RequestBody ReservationDto.Request form,
             @PathVariable Long id) {
         
-        ReservationForm.Response saved = customerService.reserveRestaurant(
+        ReservationDto.Response saved = customerService.reserveRestaurant(
                 header, form, id);
         
         return ResponseEntity.ok(saved);
@@ -56,9 +55,9 @@ public class CustomerController {
     
     @PostMapping("/signin")
     public ResponseEntity<Object> signInCustomer(
-            @RequestBody SignInForm.Request form) {
+            @RequestBody SignInDto.Request form) {
         
-        SignInForm.Response signedIn = customerService.signInCustomer(form);
+        SignInDto.Response signedIn = customerService.signIn(form);
         
         String token = tokenProvider.generateToken(
                 signedIn.getEmail(), signedIn.getRole());
@@ -69,9 +68,9 @@ public class CustomerController {
     
     @PostMapping("/signup")
     public ResponseEntity<Object> signUpCustomer(
-            @RequestBody SignUpForm.Request form) {
+            @RequestBody SignUpDto.Request form) {
         
-        SignUpForm.Response signedUp = customerService.signUpCustomer(form);
+        SignUpDto.Response signedUp = customerService.signUp(form);
         
         return ResponseEntity.ok(signedUp);
     }

@@ -23,7 +23,7 @@ Content-Type: application/json
 ### Create Restaurant
 POST localhost:8080/manager/create
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX01BTkFHRVIiXSwic3ViIjoidGVzdEBuYXZlci5jb20iLCJpYXQiOjE3MTM2MzAwNTEsImV4cCI6MTcxMzYzMzY1MX0._rQKJvchdU7-Z9-wh7pu5TWvKyQSQ4Ezjdes8T5gCac1nJn9WQlJ0d-CVwNltO7OqzxJnyP8Ru2T6APANnwERw
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX01BTkFHRVIiXSwic3ViIjoidGVzdEBuYXZlci5jb20iLCJpYXQiOjE3MTQwNDc1NzEsImV4cCI6MTcxNDA1MTE3MX0.S8zMsqwYuRXY1Lq8G0AiNtS7v-ovdt38dKJlGEADdVBAt-XLyHbioY8nI6Vt7r-VTG-V4AIfGkwOtZuQpsVC2g
 
 {
   "name": "치킨집",
@@ -55,7 +55,7 @@ Content-Type: application/json
 ### Reservation Customer
 POST localhost:8080/customer/reservation/1
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX0NVU1RPTUVSIl0sInN1YiI6InRlc3RAbmF2ZXIuY29tIiwiaWF0IjoxNzEzNjI2NDgxLCJleHAiOjE3MTM2MzAwODF9.h6N_Y8zhhaIf9ylci6-6YXxvUYhxs7B3djQWfHWDxiHILmG1Ljydxy3dTooR7JAhqkhwUH7tKOG9z4zntl3twg
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX0NVU1RPTUVSIl0sInN1YiI6InRlc3RAbmF2ZXIuY29tIiwiaWF0IjoxNzE0MDQ3NTk3LCJleHAiOjE3MTQwNTExOTd9.s07sFCsaQ9b6JvcUWbqA_V72LbK5a1G4OiwVb0pOtZHCDZ_vniXWHSXJQZaAwsOyCpNSfXn2QRg1_jr3e0FwjQ
 
 {
   "headCount": 20,
@@ -74,4 +74,9 @@ Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX0NVU1RPTUVSIl0sI
 
 ### Get Restaurants
 GET localhost:8080/customer/restaurants
+Accept: application/json
+
+### Get Reservations
+GET localhost:8080/manager/reservation/1
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX01BTkFHRVIiXSwic3ViIjoidGVzdEBuYXZlci5jb20iLCJpYXQiOjE3MTQwNDc1NzEsImV4cCI6MTcxNDA1MTE3MX0.S8zMsqwYuRXY1Lq8G0AiNtS7v-ovdt38dKJlGEADdVBAt-XLyHbioY8nI6Vt7r-VTG-V4AIfGkwOtZuQpsVC2g
 Accept: application/json

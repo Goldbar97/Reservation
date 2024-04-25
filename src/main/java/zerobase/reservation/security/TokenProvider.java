@@ -50,7 +50,6 @@ public class TokenProvider {
         
         String role = getRole(jwt).getFirst();
         UserDetails userDetails = null;
-        System.out.println(role);
         
         switch (role) {
             case "ROLE_CUSTOMER" -> {
