@@ -36,6 +36,9 @@ public class CustomerService implements UserDetailsService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
     
+    /**
+     * 손님, 예약, 시간 확인 후 방문 확인
+     */
     @Transactional
     public ReservationStatusDto.Response confirmReservation(
             String header, Long reservationId) {
@@ -88,6 +91,9 @@ public class CustomerService implements UserDetailsService {
                 .build();
     }
     
+    /**
+     * 손님, 매장, 예약 확인 후 리뷰 작성
+     */
     @Transactional
     public ReviewDto.Response createReview(
             String header, ReviewDto.Request form, Long restaurantId) {
@@ -114,6 +120,9 @@ public class CustomerService implements UserDetailsService {
                 .build();
     }
     
+    /**
+     * 손님, 매장, 리뷰 확인 후 리뷰 삭제
+     */
     @Transactional
     public boolean deleteReview(
             String header, Long reviewId, Long restaurantId) {
@@ -140,6 +149,9 @@ public class CustomerService implements UserDetailsService {
         return true;
     }
     
+    /**
+     * 손님, 매장, 리뷰 확인 후 수정 부분만 리뷰 수정
+     */
     @Transactional
     public ReviewDto.Response editReview(
             String header, ReviewDto.Request form, Long reviewId,
@@ -177,6 +189,9 @@ public class CustomerService implements UserDetailsService {
                 .build();
     }
     
+    /**
+     * 매장 조회
+     */
     public List<RestaurantDto.Response> getRestaurants() {
         
         List<RestaurantEntity> restaurantEntities =
@@ -203,6 +218,9 @@ public class CustomerService implements UserDetailsService {
                         "No such email -> " + username));
     }
     
+    /**
+     * 손님, 매장 확인 후 예약
+     */
     @Transactional
     public ReservationDto.Response reserveRestaurant(
             String header, ReservationDto.Request form, Long restaurantId) {
@@ -261,6 +279,9 @@ public class CustomerService implements UserDetailsService {
                 .build();
     }
     
+    /**
+     * 토큰과 매장 id 확인
+     */
     private List<Object> getCustomerAndRestaurant(
             String header, Long restaurantId) {
         

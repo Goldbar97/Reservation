@@ -35,6 +35,9 @@ public class ManagerService implements UserDetailsService {
     private final JwtTokenUtil jwtTokenUtil;
     private final PasswordEncoder passwordEncoder;
     
+    /**
+     * 매장 등록
+     */
     @Transactional
     public RestaurantDto.Response createRestaurant(
             String header, RestaurantDto.Request form) {
@@ -64,6 +67,9 @@ public class ManagerService implements UserDetailsService {
                 .build();
     }
     
+    /**
+     * 손님의 예약을 확정/취소
+     */
     @Transactional
     public ReservationStatusDto.Response decideReservation(
             String header, ReservationStatusDto.Request status,
@@ -172,12 +178,7 @@ public class ManagerService implements UserDetailsService {
     }
     
     /**
-     * This verifies the manager is the owner of the restaurant.
-     *
-     * @param header       retrieved from header "Authorization"
-     * @param restaurantId primary key in table "Restaurant"
-     * @return List that contains ManagerEntity at index 0 and
-     * RestaurantEntity at index 1
+     * 점주와 매장 확인
      */
     private List<Object> verifyManagerToRestaurant(
             String header, Long restaurantId) {
@@ -202,6 +203,9 @@ public class ManagerService implements UserDetailsService {
         return List.of(managerEntity, restaurantEntity);
     }
     
+    /**
+     * 예약과 매장 확인
+     */
     private ReservationEntity verifyReservationToRestaurant(
             Long reservationId, Long restaurantId) {
         

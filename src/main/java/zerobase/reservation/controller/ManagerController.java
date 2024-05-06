@@ -22,6 +22,9 @@ public class ManagerController {
     private final String RESTAURANT_ID = "restaurantid";
     private final String REVIEW_ID = "reviewid";
     
+    /**
+     * 점주의 토큰을 확인하고 매장을 추가합니다.
+     */
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<Object> createRestaurant(
@@ -34,6 +37,9 @@ public class ManagerController {
         return ResponseEntity.ok(saved);
     }
     
+    /**
+     * 점주가 예약을 결정합니다.
+     */
     @PreAuthorize("hasRole('MANAGER')")
     @PutMapping("/reservation")
     public ResponseEntity<Object> decideReservation(
@@ -48,6 +54,9 @@ public class ManagerController {
         return ResponseEntity.ok(edited);
     }
     
+    /**
+     * 리뷰를 삭제합니다.
+     */
     @PreAuthorize("hasRole('MANAGER')")
     @DeleteMapping("/rate")
     public ResponseEntity<Object> deleteReview(
@@ -61,6 +70,9 @@ public class ManagerController {
         return ResponseEntity.ok(deleted);
     }
     
+    /**
+     * 매장의 예약을 조회합니다.
+     */
     @PreAuthorize("hasRole('MANAGER')")
     @GetMapping("/reservation")
     public ResponseEntity<Object> getReservations(
@@ -73,6 +85,9 @@ public class ManagerController {
         return ResponseEntity.ok(list);
     }
     
+    /**
+     * 로그인
+     */
     @PostMapping("/signin")
     public ResponseEntity<Object> signInManager(
             @RequestBody SignInDto.Request form) {
@@ -86,6 +101,9 @@ public class ManagerController {
         return ResponseEntity.ok(signedIn);
     }
     
+    /**
+     * 회원가입
+     */
     @PostMapping("/signup")
     public ResponseEntity<Object> signUpManager(
             @RequestBody SignUpDto.Request form) {

@@ -22,6 +22,9 @@ public class CustomerController {
     private final String RESTAURANT_ID = "restaurantid";
     private final String REVIEW_ID = "reviewid";
     
+    /**
+     * 예약 후 방문 확인
+     */
     @PreAuthorize("hasRole('CUSTOMER')")
     @PutMapping("/reservation")
     public ResponseEntity<Object> confirmReservation(
@@ -35,6 +38,9 @@ public class CustomerController {
         return ResponseEntity.ok(edited);
     }
     
+    /**
+     * 리뷰 작성
+     */
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/rate")
     public ResponseEntity<Object> createReview(
@@ -48,6 +54,9 @@ public class CustomerController {
         return ResponseEntity.ok(saved);
     }
     
+    /**
+     * 리뷰 삭제
+     */
     @PreAuthorize("hasRole('CUSTOMER')")
     @DeleteMapping("rate")
     public ResponseEntity<Object> deleteReview(
@@ -61,6 +70,9 @@ public class CustomerController {
         return ResponseEntity.ok(deleted);
     }
     
+    /**
+     * 리뷰 수정
+     */
     @PreAuthorize("hasRole('CUSTOMER')")
     @PutMapping("/rate")
     public ResponseEntity<Object> editReview(
@@ -75,6 +87,9 @@ public class CustomerController {
         return ResponseEntity.ok(edited);
     }
     
+    /**
+     * 매장 조회
+     */
     @GetMapping("/restaurants")
     public ResponseEntity<Object> getRestaurants() {
         
@@ -84,6 +99,9 @@ public class CustomerController {
         return ResponseEntity.ok(restaurants);
     }
     
+    /**
+     * 매장 예약
+     */
     @PreAuthorize("hasRole('CUSTOMER')")
     @PostMapping("/reservation")
     public ResponseEntity<Object> reserveRestaurant(
@@ -97,6 +115,9 @@ public class CustomerController {
         return ResponseEntity.ok(saved);
     }
     
+    /**
+     * 로그인
+     */
     @PostMapping("/signin")
     public ResponseEntity<Object> signInCustomer(
             @RequestBody SignInDto.Request form) {
@@ -110,6 +131,9 @@ public class CustomerController {
         return ResponseEntity.ok(signedIn);
     }
     
+    /**
+     * 회원 가입
+     */
     @PostMapping("/signup")
     public ResponseEntity<Object> signUpCustomer(
             @RequestBody SignUpDto.Request form) {
