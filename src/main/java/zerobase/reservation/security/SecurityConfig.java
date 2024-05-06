@@ -43,9 +43,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(e -> {
                     e
                             .requestMatchers(
-                                    "customer/signin", "customer/signup",
-                                    "manager/signin", "manager/signup",
-                                    "customer/restaurants")
+                                    "/customer/signin", "/customer/signup",
+                                    "/manager/signin", "/manager/signup",
+                                    "/customer/restaurants", "/manager")
                             .permitAll()
                             .anyRequest()
                             .authenticated();

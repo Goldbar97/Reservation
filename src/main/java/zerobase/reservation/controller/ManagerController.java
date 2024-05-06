@@ -17,25 +17,15 @@ public class ManagerController {
     
     private final ManagerService managerService;
     private final TokenProvider tokenProvider;
-    private final String HEADER_AUTH = "Authorization";
-    
-    @PutMapping("/reservation/")
-    public ResponseEntity<Object> decideReservation(
-            @RequestHeader(HEADER_AUTH) String header,
-            @RequestBody ReservationStatusDto status,
-            @RequestParam Long restaurantId,
-            @RequestParam Long reservationId) {
-        
-        ReservationDto.Response edited = managerService.decideReservation(
-                header, status, restaurantId, reservationId);
-        
-        return ResponseEntity.ok(edited);
-    }
+    private final String AUTHORIZATION = "Authorization";
+    private final String RESERVATION_ID = "reservationid";
+    private final String RESTAURANT_ID = "restaurantid";
+    private final String REVIEW_ID = "reviewid";
     
     @PreAuthorize("hasRole('MANAGER')")
     @PostMapping("/create")
     public ResponseEntity<Object> createRestaurant(
-            @RequestHeader("Authorization") String header,
+            @RequestHeader(AUTHORIZATION) String header,
             @RequestBody RestaurantDto.Request form) {
         
         RestaurantDto.Response saved = managerService.createRestaurant(
@@ -45,10 +35,37 @@ public class ManagerController {
     }
     
     @PreAuthorize("hasRole('MANAGER')")
-    @GetMapping("/reservation/{restaurantId}")
+    @PutMapping("/reservation")
+    public ResponseEntity<Object> decideReservation(
+            @RequestHeader(AUTHORIZATION) String header,
+            @RequestBody ReservationStatusDto.Request status,
+            @RequestParam(RESTAURANT_ID) Long restaurantId,
+            @RequestParam(RESERVATION_ID) Long reservationId) {
+        
+        ReservationStatusDto.Response edited = managerService.decideReservation(
+                header, status, restaurantId, reservationId);
+        
+        return ResponseEntity.ok(edited);
+    }
+    
+    @PreAuthorize("hasRole('MANAGER')")
+    @DeleteMapping("/rate")
+    public ResponseEntity<Object> deleteReview(
+            @RequestHeader(AUTHORIZATION) String header,
+            @RequestParam(REVIEW_ID) Long reviewId,
+            @RequestParam(RESTAURANT_ID) Long restaurantId) {
+        
+        boolean deleted = managerService.deleteReview(
+                header, reviewId, restaurantId);
+        
+        return ResponseEntity.ok(deleted);
+    }
+    
+    @PreAuthorize("hasRole('MANAGER')")
+    @GetMapping("/reservation")
     public ResponseEntity<Object> getReservations(
-            @RequestHeader("Authorization") String header,
-            @PathVariable Long restaurantId) {
+            @RequestHeader(AUTHORIZATION) String header,
+            @RequestParam(RESTAURANT_ID) Long restaurantId) {
         
         List<ReservationDto.Response> list = managerService.getReservations(
                 header, restaurantId);

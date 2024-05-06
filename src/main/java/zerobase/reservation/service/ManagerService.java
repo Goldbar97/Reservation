@@ -11,6 +11,7 @@ import zerobase.reservation.dto.*;
 import zerobase.reservation.entity.ManagerEntity;
 import zerobase.reservation.entity.ReservationEntity;
 import zerobase.reservation.entity.RestaurantEntity;
+import zerobase.reservation.entity.ReviewEntity;
 import zerobase.reservation.exception.CustomException;
 import zerobase.reservation.exception.ErrorCode;
 import zerobase.reservation.repository.ManagerRepository;
@@ -18,6 +19,7 @@ import zerobase.reservation.repository.ReservationRepository;
 import zerobase.reservation.repository.RestaurantRepository;
 import zerobase.reservation.repository.ReviewRepository;
 import zerobase.reservation.security.JwtTokenUtil;
+import zerobase.reservation.type.ReservationStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,23 +56,33 @@ public class ManagerService implements UserDetailsService {
         
         return RestaurantDto.Response.builder()
                 .restaurantId(saved.getId())
+                .name(saved.getName())
+                .location(saved.getLocation())
+                .capacity(saved.getCapacity())
+                .phoneNumber(saved.getPhoneNumber())
+                .description(saved.getDescription())
                 .build();
     }
     
-    public ReservationDto.Response decideReservation(
-            String header, ReservationStatusDto status, Long restaurantId,
+    @Transactional
+    public ReservationStatusDto.Response decideReservation(
+            String header, ReservationStatusDto.Request status,
+            Long restaurantId,
             Long reservationId) {
         
         verifyManagerToRestaurant(header, restaurantId);
         ReservationEntity reservationEntity = verifyReservationToRestaurant(
                 reservationId, restaurantId);
         
-        reservationEntity.setReservationStatus(status.getReservationStatus());
+        reservationEntity.setReservationStatus(
+                ReservationStatus.from(status.getStatus()));
         
         ReservationEntity edited = reservationRepository.save(
                 reservationEntity);
         
-        return ReservationDto.Response.builder()
+        return ReservationStatusDto.Response.builder()
+                .status(edited.getReservationStatus())
+                .visited(edited.isVisited())
                 .reservationId(edited.getId())
                 .customerId(edited.getCustomerEntity().getId())
                 .restaurantId(edited.getRestaurantEntity().getId())
@@ -79,29 +91,24 @@ public class ManagerService implements UserDetailsService {
                 .build();
     }
     
-    private ReservationEntity verifyReservationToRestaurant(Long reservationId, Long restaurantId) {
+    public boolean deleteReview(
+            String header, Long reviewId, Long restaurantId) {
         
-        ReservationEntity reservationEntity = reservationRepository.findById(
-                reservationId).orElseThrow(
-                () -> new CustomException(ErrorCode.NO_SUCH_RESERVATION));
+        verifyManagerToRestaurant(header, restaurantId);
+        ReviewEntity reviewEntity = reviewRepository.findById(reviewId)
+                .orElseThrow(
+                        () -> new CustomException(ErrorCode.NO_SUCH_REVIEW));
         
-        if (!reservationEntity.getRestaurantEntity().getId().equals(
-                restaurantId)) {
-            
-            throw new CustomException(ErrorCode.UNAUTHORIZED);
-        }
+        reviewRepository.delete(reviewEntity);
         
-        return reservationEntity;
+        return true;
     }
     
     public List<ReservationDto.Response> getReservations(
             String header, Long restaurantId) {
         
         List<Object> entities = verifyManagerToRestaurant(header, restaurantId);
-        
-        RestaurantEntity restaurantEntity =
-                (RestaurantEntity) entities.getLast();
-        
+        RestaurantEntity restaurantEntity = (RestaurantEntity) entities.get(1);
         List<ReservationEntity> list =
                 reservationRepository.findByRestaurantEntityOrderByReservedAt(
                                 restaurantEntity)
@@ -193,5 +200,21 @@ public class ManagerService implements UserDetailsService {
         }
         
         return List.of(managerEntity, restaurantEntity);
+    }
+    
+    private ReservationEntity verifyReservationToRestaurant(
+            Long reservationId, Long restaurantId) {
+        
+        ReservationEntity reservationEntity = reservationRepository.findById(
+                reservationId).orElseThrow(
+                () -> new CustomException(ErrorCode.NO_SUCH_RESERVATION));
+        
+        if (!reservationEntity.getRestaurantEntity().getId().equals(
+                restaurantId)) {
+            
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+        
+        return reservationEntity;
     }
 }

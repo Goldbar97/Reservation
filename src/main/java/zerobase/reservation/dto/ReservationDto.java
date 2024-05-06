@@ -21,6 +21,7 @@ public class ReservationDto {
     @Setter
     public static class Response {
         
+        private boolean visited;
         private Long reservationId;
         private Long customerId;
         private Long restaurantId;

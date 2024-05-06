@@ -38,6 +38,7 @@ public class ReservationEntity implements ProjectEntity {
     private boolean visited;
     
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ReservationStatus reservationStatus;
     
     @Column(nullable = false)

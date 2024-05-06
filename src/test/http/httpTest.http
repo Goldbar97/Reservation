@@ -23,7 +23,7 @@ Content-Type: application/json
 ### Create Restaurant
 POST localhost:8080/manager/create
 Content-Type: application/json
-Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX01BTkFHRVIiXSwic3ViIjoidGVzdEBuYXZlci5jb20iLCJpYXQiOjE3MTQwNDc1NzEsImV4cCI6MTcxNDA1MTE3MX0.S8zMsqwYuRXY1Lq8G0AiNtS7v-ovdt38dKJlGEADdVBAt-XLyHbioY8nI6Vt7r-VTG-V4AIfGkwOtZuQpsVC2g
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX01BTkFHRVIiXSwic3ViIjoidGVzdEBuYXZlci5jb20iLCJpYXQiOjE3MTQxNjA3OTksImV4cCI6MTcxNDE2NDM5OX0.Vf_GzaCp7pq0wv4H_pYlR6i5jUN9qhb1dFCWxQ-y-6v-BMoaDMx7AGoWaimceHvLz69miKQ99j_OwStoi1b_mA
 
 {
   "name": "치킨집",
@@ -80,3 +80,13 @@ Accept: application/json
 GET localhost:8080/manager/reservation/1
 Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX01BTkFHRVIiXSwic3ViIjoidGVzdEBuYXZlci5jb20iLCJpYXQiOjE3MTQwNDc1NzEsImV4cCI6MTcxNDA1MTE3MX0.S8zMsqwYuRXY1Lq8G0AiNtS7v-ovdt38dKJlGEADdVBAt-XLyHbioY8nI6Vt7r-VTG-V4AIfGkwOtZuQpsVC2g
 Accept: application/json
+
+### Decide Reservation
+PUT localhost:8080/manager/reservation?restaurantid=1&reservationid=1
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJyb2xlcyI6WyJST0xFX01BTkFHRVIiXSwic3ViIjoidGVzdEBuYXZlci5jb20iLCJpYXQiOjE3MTQxNjcyNzksImV4cCI6MTcxNDE3MDg3OX0.lt_zG2OqKvVM31LL5Om5Jpcnv6JQd7dTLg4Jr9diGvgNisuxbLZ3YNMfaars5hDR5-C1LBpMkWCvfbb8YQ-k_Q
+
+{
+  "status": "ACCEPTED"
+}
+
+###

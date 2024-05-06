@@ -2,6 +2,7 @@ package zerobase.reservation.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+import zerobase.reservation.entity.CustomerEntity;
 import zerobase.reservation.entity.ReservationEntity;
 import zerobase.reservation.entity.RestaurantEntity;
 
@@ -18,4 +19,6 @@ public interface ReservationRepository extends JpaRepository<ReservationEntity,
     
     List<ReservationEntity> findByReservedAtBefore(LocalDateTime localDateTime);
     
+    Optional<ReservationEntity> findFirstByCustomerEntityAndRestaurantEntityOrderByReservedAtDesc(
+            CustomerEntity customerEntity, RestaurantEntity restaurantEntity);
 }

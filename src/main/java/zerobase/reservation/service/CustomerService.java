@@ -19,7 +19,10 @@ import zerobase.reservation.repository.ReservationRepository;
 import zerobase.reservation.repository.RestaurantRepository;
 import zerobase.reservation.repository.ReviewRepository;
 import zerobase.reservation.security.JwtTokenUtil;
+import zerobase.reservation.type.ReservationStatus;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -32,6 +35,147 @@ public class CustomerService implements UserDetailsService {
     private final ReservationRepository reservationRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenUtil jwtTokenUtil;
+    
+    @Transactional
+    public ReservationStatusDto.Response confirmReservation(
+            String header, Long reservationId) {
+        
+        String token = jwtTokenUtil.getToken(header);
+        String email = jwtTokenUtil.getEmail(token);
+        
+        CustomerEntity customerEntity = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.NO_SUCH_USER));
+        ReservationEntity reservationEntity = reservationRepository.findById(
+                reservationId).orElseThrow(
+                () -> new CustomException(ErrorCode.NO_SUCH_RESERVATION));
+        
+        if (!customerEntity.getId()
+                .equals(reservationEntity.getCustomerEntity().getId())) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+        
+        LocalDateTime current = LocalDateTime.now();
+        LocalDateTime reservedAt = reservationEntity.getReservedAt();
+        long minutes = Duration.between(current, reservedAt).toMinutes();
+        
+        if (!(0 <= minutes && minutes <= 10)) {
+            throw new CustomException(ErrorCode.EARLY_CONFIRMATION);
+        }
+        
+        ReservationStatus status = reservationEntity.getReservationStatus();
+        
+        switch (status) {
+            case ReservationStatus.WAIT ->
+                    throw new CustomException(ErrorCode.WAIT_RESERVATION);
+            
+            case ReservationStatus.REJECTED ->
+                    throw new CustomException(ErrorCode.REJECTED_RESERVATION);
+        }
+        
+        reservationEntity.setVisited(true);
+        
+        ReservationEntity edited = reservationRepository.save(
+                reservationEntity);
+        
+        return ReservationStatusDto.Response.builder()
+                .status(edited.getReservationStatus())
+                .visited(edited.isVisited())
+                .reservationId(edited.getId())
+                .customerId(edited.getCustomerEntity().getId())
+                .restaurantId(edited.getRestaurantEntity().getId())
+                .headCount(edited.getHeadCount())
+                .reservedAt(edited.getReservedAt())
+                .build();
+    }
+    
+    @Transactional
+    public ReviewDto.Response createReview(
+            String header, ReviewDto.Request form, Long restaurantId) {
+        
+        List<Object> entities = getCustomerAndRestaurant(header, restaurantId);
+        CustomerEntity customerEntity = (CustomerEntity) entities.get(0);
+        RestaurantEntity restaurantEntity = (RestaurantEntity) entities.get(1);
+        ReservationEntity reservationEntity =
+                reservationRepository.findFirstByCustomerEntityAndRestaurantEntityOrderByReservedAtDesc(
+                                customerEntity,
+                                restaurantEntity)
+                        .orElseThrow(() -> new CustomException(
+                                ErrorCode.NO_SUCH_RESERVATION));
+        
+        if (!reservationEntity.isVisited()) {
+            throw new CustomException(ErrorCode.WRONG_REVIEW);
+        }
+        
+        ReviewEntity saved = reviewRepository.save(ReviewEntity.from(
+                form, customerEntity, restaurantEntity));
+        
+        return ReviewDto.Response.builder()
+                .reviewId(saved.getId())
+                .build();
+    }
+    
+    @Transactional
+    public boolean deleteReview(
+            String header, Long reviewId, Long restaurantId) {
+        
+        List<Object> entities = getCustomerAndRestaurant(header, restaurantId);
+        CustomerEntity customerEntity = (CustomerEntity) entities.get(0);
+        RestaurantEntity restaurantEntity = (RestaurantEntity) entities.get(1);
+        ReviewEntity reviewEntity = reviewRepository.findById(
+                reviewId).orElseThrow(
+                () -> new CustomException(ErrorCode.NO_SUCH_REVIEW));
+        
+        if (!customerEntity.getId()
+                .equals(reviewEntity.getCustomerEntity().getId())) {
+            
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        } else if (!restaurantEntity.getId()
+                .equals(reviewEntity.getRestaurantEntity().getId())) {
+            
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+        
+        reviewRepository.delete(reviewEntity);
+        
+        return true;
+    }
+    
+    @Transactional
+    public ReviewDto.Response editReview(
+            String header, ReviewDto.Request form, Long reviewId,
+            Long restaurantId) {
+        
+        List<Object> entities = getCustomerAndRestaurant(header, restaurantId);
+        CustomerEntity customerEntity = (CustomerEntity) entities.get(0);
+        RestaurantEntity restaurantEntity = (RestaurantEntity) entities.get(1);
+        ReviewEntity reviewEntity = reviewRepository.findById(
+                reviewId).orElseThrow(
+                () -> new CustomException(ErrorCode.NO_SUCH_REVIEW));
+        
+        if (!customerEntity.getId()
+                .equals(reviewEntity.getCustomerEntity().getId())) {
+            
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        } else if (!restaurantEntity.getId()
+                .equals(reviewEntity.getRestaurantEntity().getId())) {
+            
+            throw new CustomException(ErrorCode.UNAUTHORIZED);
+        }
+        
+        if (form.getRate() != null) {
+            reviewEntity.setRate(form.getRate());
+        }
+        
+        if (form.getDescription() != null) {
+            reviewEntity.setDescription(form.getDescription());
+        }
+        
+        ReviewEntity edited = reviewRepository.save(reviewEntity);
+        
+        return ReviewDto.Response.builder()
+                .reviewId(edited.getId())
+                .build();
+    }
     
     public List<RestaurantDto.Response> getRestaurants() {
         
@@ -60,38 +204,12 @@ public class CustomerService implements UserDetailsService {
     }
     
     @Transactional
-    public ReviewDto.Response rateRestaurant(
-            String header, ReviewDto.Request form, Long id) {
-        
-        String token = jwtTokenUtil.getToken(header);
-        String email = jwtTokenUtil.getEmail(token);
-        
-        CustomerEntity customerEntity = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorCode.NO_SUCH_USER));
-        RestaurantEntity restaurantEntity = restaurantRepository.findById(id)
-                .orElseThrow(() -> new CustomException(
-                        ErrorCode.NO_SUCH_RESTAURANT));
-        
-        ReviewEntity saved = reviewRepository.save(ReviewEntity.from(
-                form, customerEntity, restaurantEntity));
-        
-        return ReviewDto.Response.builder()
-                .reviewId(saved.getId())
-                .build();
-    }
-    
-    @Transactional
     public ReservationDto.Response reserveRestaurant(
-            String header, ReservationDto.Request form, Long id) {
+            String header, ReservationDto.Request form, Long restaurantId) {
         
-        String token = jwtTokenUtil.getToken(header);
-        String email = jwtTokenUtil.getEmail(token);
-        
-        CustomerEntity customerEntity = customerRepository.findByEmail(email)
-                .orElseThrow(() -> new CustomException(ErrorCode.NO_SUCH_USER));
-        RestaurantEntity restaurantEntity = restaurantRepository.findById(id)
-                .orElseThrow(() -> new CustomException(
-                        ErrorCode.NO_SUCH_RESTAURANT));
+        List<Object> entities = getCustomerAndRestaurant(header, restaurantId);
+        CustomerEntity customerEntity = (CustomerEntity) entities.get(0);
+        RestaurantEntity restaurantEntity = (RestaurantEntity) entities.get(1);
         
         ReservationEntity saved = reservationRepository.save(
                 ReservationEntity.from(form, customerEntity, restaurantEntity));
@@ -99,9 +217,9 @@ public class CustomerService implements UserDetailsService {
         return ReservationDto.Response.builder()
                 .reservationId(saved.getId())
                 .customerId(customerEntity.getId())
-                .reservedAt(saved.getReservedAt())
-                .restaurantId(saved.getRestaurantEntity().getId())
+                .restaurantId(restaurantEntity.getId())
                 .headCount(saved.getHeadCount())
+                .reservedAt(saved.getReservedAt())
                 .build();
     }
     
@@ -141,5 +259,21 @@ public class CustomerService implements UserDetailsService {
                 .email(saved.getEmail())
                 .name(saved.getName())
                 .build();
+    }
+    
+    private List<Object> getCustomerAndRestaurant(
+            String header, Long restaurantId) {
+        
+        String token = jwtTokenUtil.getToken(header);
+        String email = jwtTokenUtil.getEmail(token);
+        
+        CustomerEntity customerEntity = customerRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(ErrorCode.NO_SUCH_USER));
+        RestaurantEntity restaurantEntity = restaurantRepository.findById(
+                        restaurantId)
+                .orElseThrow(() -> new CustomException(
+                        ErrorCode.NO_SUCH_RESTAURANT));
+        
+        return List.of(customerEntity, restaurantEntity);
     }
 }
